@@ -3,9 +3,7 @@ import responseHandler from '../../utils/responseHandler';
 import { UserServices } from './user.service';
 
 const createUser = asyncFunctionHandler(async (req, res) => {
-  const userData = req.body;
-
-  const result = UserServices.createUserIntoDB(userData);
+  const result = UserServices.createUserIntoDB(req.body);
 
   responseHandler(res, {
     message: 'User is created successfully',
