@@ -4,6 +4,8 @@ import zodErrorHandler from '../errors/zodErrorHandler';
 import { TErrorMessages } from '../interface/error';
 import { validationErrorHandler } from '../errors/validationErrorHandler';
 import { castErrorHandler } from '../errors/castErrorHandler';
+import AppError from '../errors/AppError';
+import { duplicateErrorhandler } from '../errors/duplicateErrorHandler';
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
   let status = 500;
@@ -20,22 +22,36 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
     status = simplifiedError.status;
     message = simplifiedError.message;
     errorMessages = simplifiedError.errorMessages;
-  } else if (error.name === 'ValidationError') {
+  } else if (error?.name === 'ValidationError') {
     const simplifiedError = validationErrorHandler(error);
     status = simplifiedError.status;
     message = simplifiedError.message;
     errorMessages = simplifiedError.errorMessages;
-  } else if (error.name === 'CastError') {
+  } else if (error?.name === 'CastError') {
     const simplifiedError = castErrorHandler(error);
     status = simplifiedError.status;
     message = simplifiedError.message;
     errorMessages = simplifiedError.errorMessages;
-  } else if (error instanceof Error) {
-    message = error.message;
+  } else if (error?.code === 11000) {
+    const simplifiedError = duplicateErrorhandler(error);
+    status = simplifiedError.status;
+    message = simplifiedError.message;
+    errorMessages = simplifiedError.errorMessages;
+  } else if (error instanceof AppError) {
+    status = error?.status;
+    message = error?.message;
     errorMessages = [
       {
         path: '',
-        message: error.message,
+        message: error?.message,
+      },
+    ];
+  } else if (error instanceof Error) {
+    message = error?.message;
+    errorMessages = [
+      {
+        path: '',
+        message: error?.message,
       },
     ];
   }
